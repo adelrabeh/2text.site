@@ -1,0 +1,42 @@
+name: Extract Horizons source
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  extract-source:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract Horizons export
+        run: |
+          mkdir -p /tmp/horizons
+          unzip -q horizons-export-*.zip -d /tmp/horizons
+          find /tmp/horizons -maxdepth 3 -type f | head -50
+          
+          if [ -d /tmp/horizons/src ]; then
+            cp -R /tmp/horizons/src ./src
+          fi
+          if [ -d /tmp/horizons/public ]; then
+            cp -R /tmp/horizons/public ./public
+          fi
+          
+          find /tmp/horizons -maxdepth 2 -type f \( -name 'package.json' -o -name 'next.config.*' -o -name 'tsconfig.json' -o -name 'tailwind.config.*' \) -exec cp {} . \;
+          
+          if [ -d /tmp/horizons/apps ]; then
+            cp -R /tmp/horizons/apps ./apps
+          fi
+
+      - name: Commit extracted source
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Extract Horizons source" || exit 0
+          git push
