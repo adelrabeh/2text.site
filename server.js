@@ -1,49 +1,19 @@
-import { spawn } from "node:child_process";
-import { existsSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
+import express from "express";
+import { createRequestHandler } from "@react-router/express";
+import * as build from "./server/index.js";
 
-const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const app = express();
+const port = Number(process.env.PORT) || 3000;
 
-const candidates = [
-  {
-    cliPath: path.resolve(currentDir, "node_modules/@react-router/serve/dist/cli.js"),
-    buildPath: path.resolve(currentDir, "server/index.js"),
-  },
-  {
-    cliPath: path.resolve(currentDir, "node_modules/@react-router/serve/dist/cli.js"),
-    buildPath: path.resolve(currentDir, "dist/apps/web/server/index.js"),
-  },
-];
-
-const target = candidates.find(
-  ({ cliPath, buildPath }) => existsSync(cliPath) && existsSync(buildPath),
+app.use(
+  express.static("./client", {
+    maxAge: "1h",
+    index: false,
+  }),
 );
 
-if (!target) {
-  console.error("React Router production files were not found.");
-  console.error("Checked:", candidates);
-  process.exit(1);
-}
+app.all("*", createRequestHandler({ build }));
 
-const child = spawn(process.execPath, [target.cliPath, target.buildPath], {
-  stdio: "inherit",
-  env: {
-    ...process.env,
-    NODE_ENV: "production",
-    PORT: process.env.PORT || "3000",
-  },
-});
-
-child.on("error", (error) => {
-  console.error("Failed to start React Router server:", error);
-  process.exit(1);
-});
-
-child.on("exit", (code, signal) => {
-  if (signal) {
-    process.kill(process.pid, signal);
-  } else {
-    process.exit(code ?? 1);
-  }
+app.listen(port, "0.0.0.0", () => {
+  console.log(`React Router server listening on port ${port}`);
 });
