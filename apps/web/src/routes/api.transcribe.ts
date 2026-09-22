@@ -3,6 +3,7 @@ import { apiError, json, readFormData, withApi } from '@/lib/api.server';
 const XAI_ENDPOINT = 'https://api.x.ai/v1/stt';
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
 const XAI_TIMEOUT_MS = 90_000;
+const XAI_MODEL = 'grok-voice-transcribe-2.0';
 
 export const action = withApi(async ({ request }) => {
   if (request.method !== 'POST') {
@@ -30,7 +31,7 @@ export const action = withApi(async ({ request }) => {
   }
 
   const xaiForm = new FormData();
-  xaiForm.append('model', 'grok-voice-transcribe-2.0');
+  xaiForm.append('model', XAI_MODEL);
   xaiForm.append('language', 'ar');
   xaiForm.append('format', 'true');
   const fileBuffer = await file.arrayBuffer();
