@@ -1,1 +1,13 @@
-PLACEHOLDER
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" fill="none">
+  <defs>
+    <linearGradient id="g" x1="35" y1="35" x2="285" y2="190" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10D7C8"/>
+      <stop offset=".48" stop-color="#0878E8"/>
+      <stop offset="1" stop-color="#172AAB"/>
+    </linearGradient>
+  </defs>
+  <path d="M118 28h132c22 0 40 18 40 40v86c0 22-18 40-40 40h-38l-31 24v-24h-63c-22 0-40-18-40-40V68c0-22 18-40 40-40Z" stroke="url(#g)" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M125 102c13-18 25-18 38 0 13 18 25 18 38 0" stroke="url(#g)" stroke-width="10" stroke-linecap="round"/>
+  <path d="M70 106v36M88 90v68M106 72v104M124 92v64" stroke="url(#g)" stroke-width="10" stroke-linecap="round"/>
+  <path d="M205 82h48M205 103h58M205 124h58M205 145h44" stroke="url(#g)" stroke-width="8" stroke-linecap="round"/>
+</svg>
