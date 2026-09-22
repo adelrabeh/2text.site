@@ -1,20 +1,20 @@
 {
-	"name": "monorepo-ssr",
-	"version": "0.0.0",
-	"private": true,
-	"scripts": {
-		"setup": "npm install",
-		"dev": "concurrently --kill-others --raw \"npm run dev --prefix apps/web\"",
-		"build": "concurrently --raw \"npm run build --prefix apps/web\"",
-		"start": "node server.js",
-		"lint": "concurrently --raw \"npm run lint --prefix apps/web\"",
-		"typecheck": "concurrently --raw \"npm run typecheck --prefix apps/web\""
-	},
-	"devDependencies": {
-		"concurrently": "^10.0.4",
-		"knip": "^6.32.1"
-	},
-	"workspaces": [
-		"apps/*"
-	]
+  "name": "monorepo-ssr",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "setup": "npm install",
+    "dev": "concurrently --kill-others --raw \"npm run dev --prefix apps/web\"",
+    "build": "npm run build --prefix apps/web && cp server.js dist/apps/web/server.js",
+    "start": "node server.js",
+    "lint": "concurrently --raw \"npm run lint --prefix apps/web\"",
+    "typecheck": "concurrently --raw \"npm run typecheck --prefix apps/web\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.4",
+    "knip": "^6.32.1"
+  },
+  "workspaces": [
+    "apps/*"
+  ]
 }
