@@ -1,8 +1,10 @@
 import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-const cliPath = path.resolve("node_modules/@react-router/serve/dist/cli.js");
-const buildPath = path.resolve("dist/apps/web/server/index.js");
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
+const cliPath = path.join(rootDir, "node_modules/@react-router/serve/dist/cli.js");
+const buildPath = path.join(rootDir, "dist/apps/web/server/index.js");
 
 const child = spawn(process.execPath, [cliPath, buildPath], {
   stdio: "inherit",
