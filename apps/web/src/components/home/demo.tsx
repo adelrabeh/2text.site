@@ -53,7 +53,7 @@ export function Demo() {
 	const [error, setError] = useState<string | null>(null);
 	const [stage, setStage] = useState(0);
 	const [progress, setProgress] = useState(0);
-	const [transcript, setTranscript] = useState(SAMPLE_TRANSCRIPT);
+	const [transcript, setTranscript] = useState('');
 	const [copied, setCopied] = useState(false);
 	const [playing, setPlaying] = useState(false);
 	const [elapsed, setElapsed] = useState(0);
@@ -63,19 +63,11 @@ export function Demo() {
 	useEffect(() => {
 		if (status !== 'processing') return;
 		setStage(0);
-		setProgress(0);
-		const total = STAGES.length * 1300;
-		const started = Date.now();
+		setProgress(10);
 		const tick = window.setInterval(() => {
-			const passed = Date.now() - started;
-			const pct = Math.min(100, Math.round((passed / total) * 100));
-			setProgress(pct);
-			setStage(Math.min(STAGES.length - 1, Math.floor(passed / 1300)));
-			if (pct >= 100) {
-				window.clearInterval(tick);
-				setStatus('done');
-			}
-		}, 80);
+			setProgress(current => Math.min(92, current + 1));
+			setStage(current => Math.min(STAGES.length - 2, current + 1));
+		}, 700);
 		return () => window.clearInterval(tick);
 	}, [status]);
 
@@ -114,9 +106,7 @@ export function Demo() {
 	}
 
 	function loadSample() {
-		setError(null);
-		setFile({ name: 'اجتماع-فريق-المنتج.mp3', size: 25_821_184, url: null, sample: true });
-		setStatus('ready');
+		setError('الملف التجريبي للعرض فقط. اختر ملفًا صوتيًا حقيقيًا لإجراء التحويل عبر Grok.');
 	}
 
 	function reset() {
@@ -128,7 +118,7 @@ export function Demo() {
 		setElapsed(0);
 		setProgress(0);
 		setStage(0);
-		setTranscript(SAMPLE_TRANSCRIPT);
+		setTranscript('');
 		setError(null);
 	}
 
@@ -309,7 +299,10 @@ export function Demo() {
 												const response = await fetch('/api/transcribe', { method: 'POST', body: form });
 												const data = await response.json();
 												if (!response.ok) throw new Error(data.error || 'تعذر تحويل الملف.');
-												setTranscript(data.text || 'لم يتم استخراج نص من الملف.');
+												if (typeof data.text !== 'string' || !data.text.trim()) {
+											throw new Error('لم يصل نص من خدمة Grok.');
+										}
+										setTranscript(data.text.trim());
 												setProgress(100);
 												setStage(STAGES.length - 1);
 												setStatus('done');
