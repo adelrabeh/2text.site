@@ -6,5 +6,6 @@ export default [
 	route('robots.txt', 'routes/robots.txt.ts'),
 	route('api/health', 'routes/api.health.ts'),
 	route('api/transcribe', 'routes/api.transcribe.ts'),
+	route('api/xai-test', 'routes/api.xai-test.ts'),
 	route('api/*', 'routes/api.$.ts'),
 ] satisfies RouteConfig;
