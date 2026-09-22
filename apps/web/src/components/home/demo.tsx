@@ -58,6 +58,7 @@ export function Demo() {
 	const [playing, setPlaying] = useState(false);
 	const [elapsed, setElapsed] = useState(0);
 	const inputRef = useRef<HTMLInputElement>(null);
+	const selectedFileRef = useRef<File | null>(null);
 
 	useEffect(() => {
 		if (status !== 'processing') return;
@@ -102,6 +103,7 @@ export function Demo() {
 			return;
 		}
 		setError(null);
+		selectedFileRef.current = candidate;
 		setFile({
 			name: candidate.name,
 			size: candidate.size,
@@ -120,6 +122,7 @@ export function Demo() {
 	function reset() {
 		if (file?.url) URL.revokeObjectURL(file.url);
 		setFile(null);
+		selectedFileRef.current = null;
 		setStatus('idle');
 		setPlaying(false);
 		setElapsed(0);
@@ -290,8 +293,33 @@ export function Demo() {
 								{status === 'ready' ? (
 									<button
 										type="button"
-										onClick={() => setStatus('processing')}
-										className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-ice px-8 text-base font-bold text-midnight transition-all hover:bg-white active:scale-[0.98]"
+										onClick={async () => {
+											const selectedFile = selectedFileRef.current;
+											if (!selectedFile) {
+												setError('يرجى اختيار ملف صوتي أولاً.');
+												return;
+											}
+											setError(null);
+											setStatus('processing');
+											setProgress(10);
+											setStage(0);
+											try {
+												const form = new FormData();
+												form.append('file', selectedFile);
+												const response = await fetch('/api/transcribe', { method: 'POST', body: form });
+												const data = await response.json();
+												if (!response.ok) throw new Error(data.error || 'تعذر تحويل الملف.');
+												setTranscript(data.text || 'لم يتم استخراج نص من الملف.');
+												setProgress(100);
+												setStage(STAGES.length - 1);
+												setStatus('done');
+											} catch (err) {
+												setError(err instanceof Error ? err.message : 'حدث خطأ أثناء التحويل.');
+												setStatus('ready');
+												setProgress(0);
+											}
+									}}
+									className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-ice px-8 text-base font-bold text-midnight transition-all hover:bg-white active:scale-[0.98]"
 									>
 										<Sparkles className="h-4 w-4" />
 										ابدأ التحويل
@@ -379,7 +407,7 @@ export function Demo() {
 				</div>
 
 				<p className="mt-6 text-center text-xs text-silver/60">
-					هذه تجربة توضيحية تعمل بالكامل داخل المتصفح — لا يُرفع أي ملف إلى خادم.
+					يتم تحويل الملف عبر خادم نطق باستخدام Grok Speech-to-Text، ثم يظهر النص الناتج هنا.
 				</p>
 			</div>
 		</section>
