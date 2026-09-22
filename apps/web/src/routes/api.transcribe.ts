@@ -2,6 +2,7 @@ import { apiError, json, readFormData, withApi } from '@/lib/api.server';
 
 const XAI_ENDPOINT = 'https://api.x.ai/v1/stt';
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
+const XAI_TIMEOUT_MS = 90_000;
 
 export const action = withApi(async ({ request }) => {
   if (request.method !== 'POST') {
@@ -37,13 +38,27 @@ export const action = withApi(async ({ request }) => {
   xaiForm.append('file', fileBlob, file.name);
 
   try {
-    const response = await fetch(XAI_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: xaiForm,
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), XAI_TIMEOUT_MS);
+
+    let response: Response;
+    try {
+      response = await fetch(XAI_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: xaiForm,
+        signal: controller.signal,
+      });
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return apiError(504, 'استغرقت خدمة Grok وقتًا أطول من المتوقع. جرّب ملفًا صوتيًا أقصر.');
+      }
+      throw error;
+    } finally {
+      clearTimeout(timeout);
+    }
 
     const data = await response.json().catch(() => null);
 
