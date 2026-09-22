@@ -275,7 +275,8 @@ export function Demo() {
 									<button
 										type="button"
 										onClick={async () => {
-											if (!file?.url) {
+											const selectedFile = selectedFileRef.current;
+											if (!selectedFile) {
 												setError('يرجى اختيار ملف صوتي أولاً.');
 												return;
 											}
@@ -288,7 +289,7 @@ export function Demo() {
 													method: 'POST',
 													body: (() => {
 														const form = new FormData();
-														form.append('file', selectedFileRef.current);
+														form.append('file', selectedFile);
 														return form;
 													})(),
 												});
