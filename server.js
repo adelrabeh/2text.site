@@ -1,16 +1,37 @@
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-const rootDir = path.dirname(fileURLToPath(import.meta.url));
-const cliPath = path.join(rootDir, "node_modules/@react-router/serve/dist/cli.js");
-const buildPath = path.join(rootDir, "dist/apps/web/server/index.js");
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
-const child = spawn(process.execPath, [cliPath, buildPath], {
+const candidates = [
+  {
+    cliPath: path.resolve(currentDir, "node_modules/@react-router/serve/dist/cli.js"),
+    buildPath: path.resolve(currentDir, "dist/apps/web/server/index.js"),
+  },
+  {
+    cliPath: path.resolve(currentDir, "../../../node_modules/@react-router/serve/dist/cli.js"),
+    buildPath: path.resolve(currentDir, "server/index.js"),
+  },
+];
+
+const target = candidates.find(
+  ({ cliPath, buildPath }) => existsSync(cliPath) && existsSync(buildPath),
+);
+
+if (!target) {
+  console.error("React Router production files were not found.");
+  console.error("Checked:", candidates);
+  process.exit(1);
+}
+
+const child = spawn(process.execPath, [target.cliPath, target.buildPath], {
   stdio: "inherit",
   env: {
     ...process.env,
     NODE_ENV: "production",
+    PORT: process.env.PORT || "3000",
   },
 });
 
