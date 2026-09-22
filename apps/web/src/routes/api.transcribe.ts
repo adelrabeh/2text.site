@@ -32,7 +32,9 @@ export const action = withApi(async ({ request }) => {
   xaiForm.append('model', 'grok-voice-transcribe-2.0');
   xaiForm.append('language', 'ar');
   xaiForm.append('format', 'true');
-  xaiForm.append('file', file, file.name);
+  const fileBuffer = await file.arrayBuffer();
+  const fileBlob = new Blob([fileBuffer], { type: file.type || 'application/octet-stream' });
+  xaiForm.append('file', fileBlob, file.name);
 
   try {
     const response = await fetch(XAI_ENDPOINT, {
