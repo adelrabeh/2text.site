@@ -58,25 +58,7 @@ export function Demo() {
 	const [playing, setPlaying] = useState(false);
 	const [elapsed, setElapsed] = useState(0);
 	const inputRef = useRef<HTMLInputElement>(null);
-
-	useEffect(() => {
-		if (status !== 'processing') return;
-		setStage(0);
-		setProgress(0);
-		const total = STAGES.length * 1300;
-		const started = Date.now();
-		const tick = window.setInterval(() => {
-			const passed = Date.now() - started;
-			const pct = Math.min(100, Math.round((passed / total) * 100));
-			setProgress(pct);
-			setStage(Math.min(STAGES.length - 1, Math.floor(passed / 1300)));
-			if (pct >= 100) {
-				window.clearInterval(tick);
-				setStatus('done');
-			}
-		}, 80);
-		return () => window.clearInterval(tick);
-	}, [status]);
+	const selectedFileRef = useRef<File | null>(null);
 
 	useEffect(() => {
 		if (!playing) return;
@@ -102,6 +84,7 @@ export function Demo() {
 			return;
 		}
 		setError(null);
+		selectedFileRef.current = candidate;
 		setFile({
 			name: candidate.name,
 			size: candidate.size,
@@ -119,6 +102,7 @@ export function Demo() {
 
 	function reset() {
 		if (file?.url) URL.revokeObjectURL(file.url);
+		selectedFileRef.current = null;
 		setFile(null);
 		setStatus('idle');
 		setPlaying(false);
@@ -144,7 +128,7 @@ export function Demo() {
 		const url = URL.createObjectURL(blob);
 		const anchor = document.createElement('a');
 		anchor.href = url;
-		anchor.download = 'تفريغ-تدوين.txt';
+		anchor.download = 'تفريغ-نطق.txt';
 		anchor.click();
 		URL.revokeObjectURL(url);
 	}
@@ -290,7 +274,36 @@ export function Demo() {
 								{status === 'ready' ? (
 									<button
 										type="button"
-										onClick={() => setStatus('processing')}
+										onClick={async () => {
+											if (!file?.url) {
+												setError('يرجى اختيار ملف صوتي أولاً.');
+												return;
+											}
+											setError(null);
+											setStatus('processing');
+											setProgress(15);
+											setStage(0);
+											try {
+												const response = await fetch('/api/transcribe', {
+													method: 'POST',
+													body: (() => {
+														const form = new FormData();
+														form.append('file', selectedFileRef.current);
+														return form;
+													})(),
+												});
+												const data = await response.json();
+												if (!response.ok) throw new Error(data.error || 'تعذر تحويل الملف.');
+												setTranscript(data.text || '');
+												setProgress(100);
+												setStage(STAGES.length - 1);
+												setStatus('done');
+											} catch (err) {
+												setError(err instanceof Error ? err.message : 'حدث خطأ أثناء التحويل.');
+												setStatus('ready');
+												setProgress(0);
+											}
+										}}
 										className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-ice px-8 text-base font-bold text-midnight transition-all hover:bg-white active:scale-[0.98]"
 									>
 										<Sparkles className="h-4 w-4" />
