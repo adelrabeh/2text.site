@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AudioLines, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 const NAV_LINKS = [
 	{ href: '#how', label: 'كيف تعمل' },
@@ -15,11 +15,9 @@ export function SiteHeader() {
 	return (
 		<header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-md">
 			<div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 md:px-8">
-				<a href="#top" className="flex items-center gap-2.5">
-					<span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-ice">
-						<AudioLines className="h-5 w-5" strokeWidth={2.2} />
-					</span>
-					<span className="font-display text-xl font-bold tracking-tight">تدوين</span>
+				<a href="#top" className="flex items-center gap-2.5" aria-label="نطق">
+					<img src="/logo.svg" alt="شعار نطق" className="h-11 w-16 object-contain" />
+					<span className="font-display text-2xl font-bold tracking-tight">نطق</span>
 				</a>
 
 				<nav aria-label="التنقل الرئيسي" className="hidden items-center gap-7 lg:flex">
