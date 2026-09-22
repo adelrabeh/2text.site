@@ -38,6 +38,7 @@ export const action = withApi(async ({ request }) => {
   xaiForm.append('file', fileBlob, file.name);
 
   try {
+    console.log('STT start:', { name: file.name, type: file.type, size: file.size });
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), XAI_TIMEOUT_MS);
 
@@ -60,7 +61,10 @@ export const action = withApi(async ({ request }) => {
       clearTimeout(timeout);
     }
 
-    const data = await response.json().catch(() => null);
+    const raw = await response.text();
+    let data: any = null;
+    try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
+    console.log('STT response:', { status: response.status, contentType: response.headers.get('content-type'), rawPreview: raw.slice(0, 500) });
 
     if (!response.ok) {
       console.error('xAI STT error:', data);
