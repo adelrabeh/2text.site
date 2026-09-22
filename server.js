@@ -8,11 +8,11 @@ const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const candidates = [
   {
     cliPath: path.resolve(currentDir, "node_modules/@react-router/serve/dist/cli.js"),
-    buildPath: path.resolve(currentDir, "dist/apps/web/server/index.js"),
+    buildPath: path.resolve(currentDir, "server/index.js"),
   },
   {
-    cliPath: path.resolve(currentDir, "../../../node_modules/@react-router/serve/dist/cli.js"),
-    buildPath: path.resolve(currentDir, "server/index.js"),
+    cliPath: path.resolve(currentDir, "node_modules/@react-router/serve/dist/cli.js"),
+    buildPath: path.resolve(currentDir, "dist/apps/web/server/index.js"),
   },
 ];
 
