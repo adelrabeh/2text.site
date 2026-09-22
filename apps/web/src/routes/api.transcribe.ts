@@ -53,8 +53,19 @@ export const action = withApi(async ({ request }) => {
       );
     }
 
+    const text = typeof data?.text === 'string' ? data.text.trim() : '';
+
+    if (!text) {
+      console.error('xAI STT returned no transcript:', {
+        language: data?.language,
+        duration: data?.duration,
+        words: Array.isArray(data?.words) ? data.words.length : 0,
+      });
+      return apiError(502, 'وصلت استجابة من Grok لكن لم يتم استخراج أي نص من الملف. تأكد من أن الملف يحتوي على صوت واضح وبصيغة مدعومة.');
+    }
+
     return json({
-      text: data?.text || '',
+      text,
       language: data?.language || 'ar',
       duration: data?.duration || null,
       words: data?.words || [],
