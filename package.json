@@ -5,7 +5,7 @@
   "scripts": {
     "setup": "npm install",
     "dev": "concurrently --kill-others --raw \"npm run dev --prefix apps/web\"",
-    "build": "npm run build --prefix apps/web && cp server.js dist/apps/web/server.js",
+    "build": "npm run build --prefix apps/web && cp server.js dist/apps/web/server.js && node -e \"require('fs').writeFileSync('dist/apps/web/package.json', JSON.stringify({type:'module'}))\"",
     "start": "node server.js",
     "lint": "concurrently --raw \"npm run lint --prefix apps/web\"",
     "typecheck": "concurrently --raw \"npm run typecheck --prefix apps/web\""
