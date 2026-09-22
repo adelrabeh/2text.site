@@ -42,7 +42,7 @@ app.use(
   }),
 );
 
-app.all("*", createRequestHandler({ build }));
+app.use(createRequestHandler({ build }));
 
 app.listen(port, "0.0.0.0", () => {
   console.log(`React Router server listening on port ${port}`);
